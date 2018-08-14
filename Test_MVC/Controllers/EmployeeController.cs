@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Test_MVC.Filters;
 using Test_MVC.Models;
 using Test_MVC.ViewModels;
 
@@ -48,15 +49,19 @@ namespace Test_MVC.Controllers
             }
             employeeListViewModel.Employees = empViewModels;
             //employeeListViewModel.UserName = "Admin";
+
+            employeeListViewModel.FooterData = new FooterViewModel();
+            employeeListViewModel.FooterData.CompanyName = "StepByStepSchools";//Can be set to dynamic value
+            employeeListViewModel.FooterData.Year = DateTime.Now.Year.ToString();
             return View("Index", employeeListViewModel);
         }
 
-
+        [AdminFilter]
         public ActionResult AddNew()
         {
             return View("CreateEmployee", new CreateEmployeeViewModel());
         }
-
+        [AdminFilter]
         public ActionResult SaveEmployee(Employee e, string BtnSubmit)
         {
             switch (BtnSubmit)
@@ -66,7 +71,7 @@ namespace Test_MVC.Controllers
                     {
                         EmployeeBusinessLayer empBal = new EmployeeBusinessLayer();
                         empBal.SaveEmployee(e);
-                        return RedirectToAction("Index");                       
+                        return RedirectToAction("Index");
                     }
                     else
                     {
@@ -90,6 +95,19 @@ namespace Test_MVC.Controllers
             return new EmptyResult();
         }
 
+
+        public ActionResult GetAddNewLink()
+        {
+            if (Convert.ToBoolean(Session["IsAdmin"]))
+            {
+                return PartialView("AddNewLink");
+            }
+            else
+            {
+                return new EmptyResult();
+            }
+        }
+        
         [NonAction]
         public string SimpleMethod()
         {
